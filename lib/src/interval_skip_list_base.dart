@@ -606,7 +606,7 @@ class _Node<K, M> {
 
   void verifyNotMarkedBelowLevel(
       M marker, int level, K untilIndex, Comparator<K> comparator) {
-    for (var i = level - 1; i >= 0; i--) {
+    for (var i = min(level, height) - 1; i >= 0; i--) {
       if (markers[i].contains(marker)) {
         throw new StateError('Node at $index should not have marker '
             '$marker at level $i pointer to node at ${next[i].index}');
