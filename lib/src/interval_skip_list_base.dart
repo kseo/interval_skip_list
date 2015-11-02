@@ -370,7 +370,7 @@ class IntervalSkipList<K, M> {
 
     var i = 0;
     for (i = 0; i < node.height - 1; i++) {
-      for (final marker in _clone(updated[i].markers[i])) {
+      for (final marker in updated[i].markers[i]) {
         final endIndex = intervalsByMarker[marker].endIndex;
         if (_comparator(node.next[i + 1].index, endIndex) <= 0) {
           _removeMarkerOnPath(marker, node.next[i], node.next[i + 1], i);
