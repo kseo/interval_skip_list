@@ -224,6 +224,34 @@ void main() {
     });
   });
 
+  group('findFirstAfterMin()', () {
+    test(
+        'returns a list of markers for intervals with the smallest lower bound except for minIndex',
+        () {
+      final list = new IntervalSkipList();
+      list.insert('0', 1, 3);
+      list.insert('1', 3, 5);
+      list.insert('2', 5, 7);
+      list.insert('3', 1, 5);
+      final markers = list.findFirstAfterMin();
+      expect(markers, ['0', '3']);
+    });
+  });
+
+  group('findLastBeforeMax()', () {
+    test(
+        'returns a list of markers for intervals with the largest upper bound except for maxIndex',
+        () {
+      final list = new IntervalSkipList();
+      list.insert('0', 1, 7);
+      list.insert('1', 3, 5);
+      list.insert('2', 5, 7);
+      list.insert('3', 1, 5);
+      final markers = list.findLastBeforeMax();
+      expect(markers, ['0', '2']);
+    });
+  });
+
   group('findContainedIn(startIndex, endIndex)', () {
     test(
         'returns markers for intervals starting and ending within the given index range',
@@ -292,7 +320,15 @@ void main() {
 
     list.insert("a", [1, 2], [3, 4]);
     list.insert("b", [2, 1], [3, 10]);
-    expect(list.findContaining([[1, double.INFINITY]]), ['a']);
-    expect(list.findContaining([[2, 20]]), orderedEquals(['a', 'b']));
+    expect(
+        list.findContaining([
+          [1, double.INFINITY]
+        ]),
+        ['a']);
+    expect(
+        list.findContaining([
+          [2, 20]
+        ]),
+        orderedEquals(['a', 'b']));
   });
 }

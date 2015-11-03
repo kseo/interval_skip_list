@@ -117,6 +117,27 @@ class IntervalSkipList<K, M> {
     return markers;
   }
 
+  /// Returns a list of markers for intervals with the smallest lower bound
+  /// except for minIndex.
+  List<M> findFirstAfterMin() {
+    if (_head.next[0] != _tail) {
+      final node = _head.next[0];
+      return node.startingMarkers;
+    } else {
+      return const [];
+    }
+  }
+
+  /// Returns a list of markers for intervals with the largest upper bound
+  /// except for maxIndex.
+  List<M> findLastBeforeMax() {
+    var currentNode = _head;
+    while (currentNode.next[0] != _tail) {
+      currentNode = currentNode.next[0];
+    }
+    return currentNode.endingMarkers;
+  }
+
   /// Returns a list of markers for intervals that start at the given
   /// [searchIndex].
   List<M> findStartingAt(K searchIndex) {
