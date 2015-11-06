@@ -247,7 +247,7 @@ class IntervalSkipList<K, M> {
     }
     if (_comparator(endIndex, _maxIndex) >= 0) {
       throw new ArgumentError(
-          'Start index ${endIndex} must be < max index ${_maxIndex}');
+          'End index ${endIndex} must be < max index ${_maxIndex}');
     }
 
     final startNode = _insertNode(startIndex);
