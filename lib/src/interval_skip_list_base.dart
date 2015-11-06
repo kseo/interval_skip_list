@@ -278,6 +278,13 @@ class IntervalSkipList<K, M> {
     }
   }
 
+  /// Removes all markers from the list. After this, the list is empty.
+  void clear() {
+    for (final marker in intervalsByMarker.keys.toList()) {
+      remove(marker);
+    }
+  }
+
   /// Removes the interval for the given [marker] if one exists, then
   /// inserts the a new interval for the marker based on [startIndex]
   /// and [endIndex].

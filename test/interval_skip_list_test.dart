@@ -281,6 +281,21 @@ void main() {
     });
   });
 
+  group('clear()', () {
+    test('removes all markers from the list', () {
+      times(10, (_) {
+        final list = new IntervalSkipList();
+        times(100, (i) {
+          insertRandomInterval(list, i.toString());
+        });
+
+        list.clear();
+        expect(list.intervalsByMarker, isEmpty);
+        expect(list.findContainedIn(0, 100), isEmpty);
+      });
+    });
+  });
+
   group('maintenance of the marker invariant', () {
     test('can insert intervals without violating the marker invariant', () {
       times(10, (_) {
