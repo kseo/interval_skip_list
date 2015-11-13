@@ -37,11 +37,10 @@ class IntervalSkipList<K, M> {
   /// [searchIndices], inclusive of their endpoints.
   List<M> findContaining(Iterable<K> searchIndices) {
     if (searchIndices.length > 1) {
-      // FIXME: Implement List intersection instead of converting to and from Set.
       searchIndices = _sortIndices(searchIndices);
-      final a = new Set<M>.from(findContaining([searchIndices.first]));
-      final b = new Set<M>.from(findContaining([searchIndices.last]));
-      return a.intersection(b).toList();
+      final a = findContaining([searchIndices.first]);
+      final b = findContaining([searchIndices.last]);
+      return _intersection(a, b);
     }
 
     final searchIndex = searchIndices.first;
@@ -659,3 +658,13 @@ Random _random = new Random();
 List _concat(List l1, List l2) => new List.from(l1)..addAll(l2);
 
 List _clone(List l) => new List.from(l);
+
+List _intersection(List l1, List l2) {
+  final result = [];
+  for (final item in l1) {
+    if (!l2.contains(item)) continue;
+    result.add(item);
+  }
+  return result;
+}
+
