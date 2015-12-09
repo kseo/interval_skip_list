@@ -8,6 +8,9 @@ which is in turn based on the paper
 [The Interval Skip List](https://www.cise.ufl.edu/tr/DOC/REP-1992-45.pdf) by
 Eric N. Hanson.
 
+[![Build Status](https://travis-ci.org/kseo/interval_skip_list.svg)](https://travis-ci.org/kseo/interval_skip_list)
+[![Coverage Status](https://coveralls.io/repos/kseo/interval_skip_list/badge.svg?branch=master&service=github)](https://coveralls.io/github/kseo/interval_skip_list?branch=master)
+
 ## Basic Usage Example
 
 ```dart
