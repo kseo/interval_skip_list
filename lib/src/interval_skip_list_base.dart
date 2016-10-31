@@ -5,6 +5,8 @@ library interval_skip_list.base;
 
 import 'dart:math';
 
+import 'package:meta/meta.dart' show required;
+
 class IntervalSkipList<K, M> {
   static const int _maxHeight = 8;
 
@@ -20,7 +22,9 @@ class IntervalSkipList<K, M> {
   final Map<M, _Interval<K>> intervalsByMarker = {};
 
   factory IntervalSkipList(
-      {int compare(K key1, K key2), K minIndex, K maxIndex}) {
+      {int compare(K key1, K key2),
+      @required K minIndex,
+      @required K maxIndex}) {
     if (compare == null) {
       compare = Comparable.compare as Comparator<K>;
     }
