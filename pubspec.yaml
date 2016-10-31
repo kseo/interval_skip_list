@@ -1,11 +1,11 @@
 name: interval_skip_list
 description: This data structure maps intervals to values and allows you to find all intervals that contain an index in O(ln(n)), where n is the number of intervals stored.
-version: 0.0.3
+version: 0.1.0
 author: Kwang Yul Seo <kwangyul.seo@gmail.com>
 homepage: https://github.com/kseo/interval_skip_list
 
 environment:
-  sdk: '>=1.0.0 <2.0.0'
+  sdk: '>=1.8.0 <2.0.0'
 
 dependencies:
   meta: ^1.0.4
