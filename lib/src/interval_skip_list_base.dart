@@ -11,23 +11,37 @@ class IntervalSkipList<K, M> {
   static const double _probability = 0.25;
 
   final Comparator<K> _comparator;
-  final _minIndex;
-  final _maxIndex;
+  final K _minIndex;
+  final K _maxIndex;
 
   final _Node<K, M> _head;
   final _Node<K, M> _tail;
 
-  final Map<M, _Interval> intervalsByMarker = {};
+  final Map<M, _Interval<K>> intervalsByMarker = {};
 
-  IntervalSkipList(
-      {int compare(K key1, K key2),
-      minIndex: double.NEGATIVE_INFINITY,
-      maxIndex: double.INFINITY})
-      : _comparator = (compare == null) ? Comparable.compare : compare,
+  factory IntervalSkipList(
+      {int compare(K key1, K key2), K minIndex, K maxIndex}) {
+    if (compare == null) {
+      compare = Comparable.compare as Comparator<K>;
+    }
+    if (minIndex == null) {
+      throw new ArgumentError.value(minIndex, 'minIndex must be specified');
+    }
+    if (maxIndex == null) {
+      throw new ArgumentError.value(maxIndex, 'maxIndex must be specified');
+    }
+
+    return new IntervalSkipList._internal(
+        compare: compare, minIndex: minIndex, maxIndex: maxIndex);
+  }
+
+  IntervalSkipList._internal(
+      {int compare(K key1, K key2), K minIndex, K maxIndex})
+      : _comparator = compare,
         _minIndex = minIndex,
         _maxIndex = maxIndex,
-        _head = new _Node(_maxHeight, minIndex),
-        _tail = new _Node(_maxHeight, maxIndex) {
+        _head = new _Node<K, M>(_maxHeight, minIndex),
+        _tail = new _Node<K, M>(_maxHeight, maxIndex) {
     for (var i = 0; i < _maxHeight; i++) {
       _head.next[i] = _tail;
     }
@@ -40,11 +54,11 @@ class IntervalSkipList<K, M> {
       searchIndices = _sortIndices(searchIndices);
       final a = findContaining([searchIndices.first]);
       final b = findContaining([searchIndices.last]);
-      return _intersection(a, b);
+      return _intersection(a, b) as List<M>;
     }
 
     final searchIndex = searchIndices.first;
-    final markers = [];
+    List<M> markers = [];
     var node = _head;
     for (var i = _maxHeight - 1; i >= 1; i--) {
       // Move forward as far as possible while keeping the node's index less
@@ -83,7 +97,7 @@ class IntervalSkipList<K, M> {
   /// Returns a list of markers for intervals that intersect the given
   /// index range.
   List<M> findIntersecting(K searchStartIndex, K searchEndIndex) {
-    final markers = [];
+    List<M> markers = [];
     var node = _head;
     for (var i = _maxHeight - 1; i >= 1; i--) {
       // Move forward as far as possible while keeping the node's index less
@@ -186,7 +200,7 @@ class IntervalSkipList<K, M> {
   /// Returns a list of markers for intervals that start within the
   /// given index range, inclusive.
   List<M> findStartingIn(K searchStartIndex, K searchEndIndex) {
-    final markers = [];
+    List<M> markers = [];
     var node = _findClosestNode(searchStartIndex);
     while (_comparator(node.index, searchEndIndex) <= 0) {
       markers.addAll(node.startingMarkers);
@@ -198,7 +212,7 @@ class IntervalSkipList<K, M> {
   /// Returns a list of markers for intervals that start within the
   /// given index range, inclusive.
   List<M> findEndingIn(K searchStartIndex, K searchEndIndex) {
-    final markers = [];
+    List<M> markers = [];
     var node = _findClosestNode(searchStartIndex);
     while (_comparator(node.index, searchEndIndex) <= 0) {
       markers.addAll(node.endingMarkers);
@@ -211,7 +225,7 @@ class IntervalSkipList<K, M> {
   /// index range, inclusive.
   List<M> findContainedIn(K searchStartIndex, K searchEndIndex) {
     final startedMarkers = new Set<M>();
-    final markers = [];
+    List<M> markers = [];
     var node = _findClosestNode(searchStartIndex);
     while (_comparator(node.index, searchEndIndex) <= 0) {
       startedMarkers.addAll(node.startingMarkers);
@@ -392,7 +406,7 @@ class IntervalSkipList<K, M> {
   void _adjustMarkersOnInsert(_Node<K, M> node, List<_Node<K, M>> updated) {
     // Phase 1: Add markers leading out of the inserted node at the highest
     // possible level
-    var promoted = [];
+    List<M> promoted = [];
     final newPromoted = [];
 
     var i = 0;
@@ -407,7 +421,7 @@ class IntervalSkipList<K, M> {
         }
       }
 
-      for (final marker in _clone(promoted)) {
+      for (final marker in _clone(promoted) as List<M>) {
         final endIndex = intervalsByMarker[marker].endIndex;
         if (_comparator(node.next[i + 1].index, endIndex) <= 0) {
           _removeMarkerOnPath(marker, node.next[i], node.next[i + 1], i);
@@ -417,10 +431,11 @@ class IntervalSkipList<K, M> {
         }
       }
 
-      promoted = _concat(promoted, newPromoted);
+      promoted = _concat(promoted, newPromoted) as List<M>;
       newPromoted.clear();
     }
-    node.addMarkersAtLevel(_concat(updated[i].markers[i], promoted), i);
+    node.addMarkersAtLevel(
+        _concat(updated[i].markers[i], promoted) as List<M>, i);
 
     // Phase 2: Push markers leading into the inserted node higher, but no higher
     // than the height of the node
@@ -428,7 +443,7 @@ class IntervalSkipList<K, M> {
     newPromoted.clear();
 
     for (i = 0; i < node.height - 1; i++) {
-      for (final marker in _clone(updated[i].markers[i])) {
+      for (final marker in _clone(updated[i].markers[i]) as List<M>) {
         final startIndex = intervalsByMarker[marker].startIndex;
         if (_comparator(startIndex, updated[i + 1].index) <= 0) {
           newPromoted.add(marker);
@@ -436,7 +451,7 @@ class IntervalSkipList<K, M> {
         }
       }
 
-      for (final marker in _clone(promoted)) {
+      for (final marker in _clone(promoted) as List<M>) {
         final startIndex = intervalsByMarker[marker].startIndex;
         if (_comparator(startIndex, updated[i + 1].index) <= 0) {
           _removeMarkerOnPath(marker, updated[i + 1], node, i);
@@ -446,7 +461,7 @@ class IntervalSkipList<K, M> {
         }
       }
 
-      promoted = _concat(promoted, newPromoted);
+      promoted = _concat(promoted, newPromoted) as List<M>;
       newPromoted.clear();
     }
     updated[i].addMarkersAtLevel(promoted, i);
@@ -461,7 +476,7 @@ class IntervalSkipList<K, M> {
 
     // Phase 1: Lower markers on edges to the left of node if needed
     for (var i = node.height - 1; i >= 0; i--) {
-      for (final marker in _clone(updated[i].markers[i])) {
+      for (final marker in _clone(updated[i].markers[i]) as List<M>) {
         final endIndex = intervalsByMarker[marker].endIndex;
         if (_comparator(node.next[i].index, endIndex) > 0) {
           newDemoted.add(marker);
@@ -469,7 +484,7 @@ class IntervalSkipList<K, M> {
         }
       }
 
-      for (final marker in _clone(demoted)) {
+      for (final marker in _clone(demoted) as List<M>) {
         _placeMarkerOnPath(marker, updated[i + 1], updated[i], i);
         final endIndex = intervalsByMarker[marker].endIndex;
         if (_comparator(node.next[i].index, endIndex) <= 0) {
@@ -493,7 +508,7 @@ class IntervalSkipList<K, M> {
         }
       }
 
-      for (final marker in _clone(demoted)) {
+      for (final marker in _clone(demoted) as List<M>) {
         _placeMarkerOnPath(marker, node.next[i], node.next[i + 1], i);
         final startIndex = intervalsByMarker[marker].startIndex;
         if (_comparator(updated[i].index, startIndex) >= 0) {
@@ -547,8 +562,8 @@ class IntervalSkipList<K, M> {
   void verifyMarkerInvariant() {
     for (final marker in intervalsByMarker.keys) {
       final interval = intervalsByMarker[marker];
-      final startIndex = interval.startIndex;
-      final endIndex = interval.endIndex;
+      K startIndex = interval.startIndex;
+      K endIndex = interval.endIndex;
       final node = _findClosestNode(startIndex);
       if (_comparator(node.index, startIndex) != 0) {
         throw new StateError('Could not find node for marker ${marker} '
@@ -646,9 +661,9 @@ class _Node<K, M> {
   }
 }
 
-class _Interval {
-  final startIndex;
-  final endIndex;
+class _Interval<K> {
+  final K startIndex;
+  final K endIndex;
 
   _Interval(this.startIndex, this.endIndex);
 }
@@ -667,4 +682,3 @@ List _intersection(List l1, List l2) {
   }
   return result;
 }
-

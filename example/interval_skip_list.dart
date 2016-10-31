@@ -6,7 +6,8 @@ library interval_skip_list.example;
 import 'package:interval_skip_list/interval_skip_list.dart';
 
 main() {
-  final list = new IntervalSkipList();
+  final list =
+      new IntervalSkipList(minIndex: -0x80000000, maxIndex: 0x7FFFFFFF);
 
   list.insert('a', 2, 7);
   list.insert('b', 1, 5);

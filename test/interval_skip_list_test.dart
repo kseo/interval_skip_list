@@ -8,6 +8,9 @@ import 'dart:math';
 import 'package:interval_skip_list/interval_skip_list.dart';
 import 'package:test/test.dart';
 
+const maxInt = 0x7FFFFFFF;
+const minInt = -0x80000000;
+
 Random randomGen = new Random();
 
 void times(int count, void f(int index)) {
@@ -46,7 +49,8 @@ void performRandomChange(IntervalSkipList<int, String> list, int i) {
 }
 
 IntervalSkipList<int, String> buildRandomList() {
-  final list = new IntervalSkipList();
+  final list =
+      new IntervalSkipList<int, String>(minIndex: minInt, maxIndex: maxInt);
   times(100, (i) => performRandomChange(list, i));
   return list;
 }
@@ -228,7 +232,7 @@ void main() {
     test(
         'returns a list of markers for intervals with the smallest lower bound except for minIndex',
         () {
-      final list = new IntervalSkipList();
+      final list = new IntervalSkipList(minIndex: minInt, maxIndex: maxInt);
       list.insert('0', 1, 3);
       list.insert('1', 3, 5);
       list.insert('2', 5, 7);
@@ -242,7 +246,7 @@ void main() {
     test(
         'returns a list of markers for intervals with the largest upper bound except for maxIndex',
         () {
-      final list = new IntervalSkipList();
+      final list = new IntervalSkipList(minIndex: minInt, maxIndex: maxInt);
       list.insert('0', 1, 7);
       list.insert('1', 3, 5);
       list.insert('2', 5, 7);
@@ -284,7 +288,8 @@ void main() {
   group('clear()', () {
     test('removes all markers from the list', () {
       times(10, (_) {
-        final list = new IntervalSkipList();
+        final list = new IntervalSkipList<int, String>(
+            minIndex: minInt, maxIndex: maxInt);
         times(100, (i) {
           insertRandomInterval(list, i.toString());
         });
@@ -299,7 +304,8 @@ void main() {
   group('maintenance of the marker invariant', () {
     test('can insert intervals without violating the marker invariant', () {
       times(10, (_) {
-        final list = new IntervalSkipList();
+        final list = new IntervalSkipList<int, String>(
+            minIndex: minInt, maxIndex: maxInt);
         times(100, (i) {
           insertRandomInterval(list, i.toString());
           list.verifyMarkerInvariant();
@@ -311,7 +317,8 @@ void main() {
         'can insert and remove intervals without violating the marker invariant',
         () {
       times(10, (_) {
-        final list = new IntervalSkipList();
+        final list = new IntervalSkipList<int, String>(
+            minIndex: minInt, maxIndex: maxInt);
         times(100, (i) {
           performRandomChange(list, i);
           list.verifyMarkerInvariant();
@@ -322,22 +329,28 @@ void main() {
 
   test('can use a custom comparator function', () {
     final list = new IntervalSkipList(
-        minIndex: [double.NEGATIVE_INFINITY],
-        maxIndex: [double.INFINITY], compare: (a, b) {
-      if (a[0] < b[0]) return -1;
-      else if (a[0] > b[0]) return 1;
-      else {
-        if (a[1] < b[1]) return -1;
-        else if (a[1] > b[1]) return 1;
-        else return 0;
-      }
-    });
+        minIndex: [minInt],
+        maxIndex: [maxInt],
+        compare: (a, b) {
+          if (a[0] < b[0])
+            return -1;
+          else if (a[0] > b[0])
+            return 1;
+          else {
+            if (a[1] < b[1])
+              return -1;
+            else if (a[1] > b[1])
+              return 1;
+            else
+              return 0;
+          }
+        });
 
     list.insert("a", [1, 2], [3, 4]);
     list.insert("b", [2, 1], [3, 10]);
     expect(
         list.findContaining([
-          [1, double.INFINITY]
+          [1, 0x7FFFFFFF]
         ]),
         ['a']);
     expect(

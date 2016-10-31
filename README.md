@@ -16,7 +16,7 @@ Eric N. Hanson.
 ```dart
 import 'package:interval_skip_list/interval_skip_list.dart';
 
-final list = new IntervalSkipList();
+final list = new IntervalSkipList(minIndex: -0x80000000, maxIndex: 0x7FFFFFFF);
 
 list.insert('a', 2, 7);
 list.insert('b', 1, 5);
@@ -43,8 +43,8 @@ instead of the default numeric values:
 
 ```dart
 final list = new IntervalSkipList(
-    minIndex: [double.NEGATIVE_INFINITY],
-    maxIndex: [double.INFINITY], compare: (a, b) {
+    minIndex: [-0x80000000],
+    maxIndex: [0x7FFFFFFF], compare: (a, b) {
   if (a[0] < b[0]) return -1;
   else if (a[0] > b[0]) return 1;
   else {
