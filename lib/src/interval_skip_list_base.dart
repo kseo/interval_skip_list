@@ -58,7 +58,7 @@ class IntervalSkipList<K, M> {
       searchIndices = _sortIndices(searchIndices);
       final a = findContaining([searchIndices.first]);
       final b = findContaining([searchIndices.last]);
-      return _intersection(a, b) as List<M>;
+      return _intersection(a, b);
     }
 
     final searchIndex = searchIndices.first;
@@ -425,7 +425,7 @@ class IntervalSkipList<K, M> {
         }
       }
 
-      for (final marker in _clone(promoted) as List<M>) {
+      for (final marker in _clone(promoted)) {
         final endIndex = intervalsByMarker[marker].endIndex;
         if (_comparator(node.next[i + 1].index, endIndex) <= 0) {
           _removeMarkerOnPath(marker, node.next[i], node.next[i + 1], i);
@@ -439,7 +439,7 @@ class IntervalSkipList<K, M> {
       newPromoted.clear();
     }
     node.addMarkersAtLevel(
-        _concat(updated[i].markers[i], promoted) as List<M>, i);
+        _concat(updated[i].markers[i], promoted), i);
 
     // Phase 2: Push markers leading into the inserted node higher, but no higher
     // than the height of the node
@@ -447,7 +447,7 @@ class IntervalSkipList<K, M> {
     newPromoted.clear();
 
     for (i = 0; i < node.height - 1; i++) {
-      for (final marker in _clone(updated[i].markers[i]) as List<M>) {
+      for (final marker in _clone(updated[i].markers[i])) {
         final startIndex = intervalsByMarker[marker].startIndex;
         if (_comparator(startIndex, updated[i + 1].index) <= 0) {
           newPromoted.add(marker);
@@ -455,7 +455,7 @@ class IntervalSkipList<K, M> {
         }
       }
 
-      for (final marker in _clone(promoted) as List<M>) {
+      for (final marker in _clone(promoted)) {
         final startIndex = intervalsByMarker[marker].startIndex;
         if (_comparator(startIndex, updated[i + 1].index) <= 0) {
           _removeMarkerOnPath(marker, updated[i + 1], node, i);
@@ -480,7 +480,7 @@ class IntervalSkipList<K, M> {
 
     // Phase 1: Lower markers on edges to the left of node if needed
     for (var i = node.height - 1; i >= 0; i--) {
-      for (final marker in _clone(updated[i].markers[i]) as List<M>) {
+      for (final marker in _clone(updated[i].markers[i])) {
         final endIndex = intervalsByMarker[marker].endIndex;
         if (_comparator(node.next[i].index, endIndex) > 0) {
           newDemoted.add(marker);
@@ -674,12 +674,13 @@ class _Interval<K> {
 
 Random _random = new Random();
 
-List _concat(List l1, List l2) => new List.from(l1)..addAll(l2);
+List/*<T>*/ _concat/*<T>*/(List/*<T>*/ l1, List/*<T>*/ l2) =>
+    new List<T>.from(l1)..addAll(l2);
 
-List _clone(List l) => new List.from(l);
+List/*<T>*/ _clone/*<T>*/(List/*<T>*/ l) => new List/*<T>*/.from(l);
 
-List _intersection(List l1, List l2) {
-  final result = [];
+List/*<T>*/ _intersection/*<T>*/(List/*<T>*/ l1, List/*<T>*/ l2) {
+  List<T> result = [];
   for (final item in l1) {
     if (!l2.contains(item)) continue;
     result.add(item);
